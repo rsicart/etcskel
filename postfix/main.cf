@@ -1,0 +1,75 @@
+# See /usr/share/postfix/main.cf.dist for a commented, more complete version
+
+
+# Debian specific:  Specifying a file name will cause the first
+# line of that file to be used as the name.  The Debian default
+# is /etc/mailname.
+#myorigin = /etc/mailname
+
+smtpd_banner = $myhostname ESMTP $mail_name (Debian/GNU)
+biff = no
+
+# appending .domain is the MUA's job.
+append_dot_mydomain = no
+
+# Uncomment the next line to generate "delayed mail" warnings
+#delay_warning_time = 4h
+
+readme_directory = no
+
+# TLS parameters
+smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem
+smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key
+smtpd_use_tls=yes
+smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
+smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
+
+# See /usr/share/doc/postfix/TLS_README.gz in the postfix-doc package for
+# information on enabling SSL in the smtp client.
+
+myhostname = smtp.example.com
+mydomain = example.com
+alias_maps = hash:/etc/aliases
+alias_database = hash:/etc/aliases
+myorigin = $mydomain
+mydestination = $myhostname, localhost, $mydomain
+relayhost = 
+relay_domains = $mydomain
+# Overriden by mynetworks if defined
+mynetworks_style = host
+mynetworks = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128
+# Mailbox Limit: 1GB
+mailbox_size_limit = 1073741824
+recipient_delimiter = +
+inet_interfaces = all
+
+# SASL
+smtpd_sasl_type = dovecot
+smtpd_sasl_path = private/auth
+smtpd_sasl_auth_enable = yes
+broken_sasl_auth_clients = yes
+smtpd_tls_auth_only = yes
+smtpd_sasl_security_options = noplaintext, noanonymous
+smtpd_sasl_tls_security_options = $smtpd_sasl_security_options
+
+# Other security stuff
+#strict_rfc821_envelopes = yes
+smtpd_helo_required = yes
+
+# Delivery Access Control
+smtpd_recipient_restrictions = 
+        reject_unknown_sender_domain
+        reject_non_fqdn_sender
+        permit_mynetworks
+        permit_sasl_authenticated
+        reject_unauth_destination
+        reject_unauth_pipelining
+        reject_rbl_client relays.ordb.org
+        reject_rhsbl_sender dsn.rfc-ignorant.org
+
+# Option only valid for postfix version >= 2.10 (check it with postconf mail_version)
+# Warning messages for version < 2.10
+smtpd_relay_restrictions = 
+        permit_mynetworks
+        permit_sasl_authenticated
+        reject_unauth_destination

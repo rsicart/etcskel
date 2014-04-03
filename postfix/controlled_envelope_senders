@@ -1,0 +1,3 @@
+# envelope sender		owners (SASL login names)
+#
+@example.com			localuser1, localuser2, localuserN
